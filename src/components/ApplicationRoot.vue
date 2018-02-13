@@ -44,6 +44,15 @@ import utility from '../utility';
                  const thisFile = files[i];
 
                  console.log("this file is %o", thisFile);
+
+                 const reader = new FileReader();
+
+                 // Close over the reader to access the result
+                 reader.onload = function (e) {
+                     console.log("read completed");
+                     console.log("event.target.result = %o", reader.result);
+                 };
+                 reader.readAsArrayBuffer(thisFile);
              }
          }
      },
