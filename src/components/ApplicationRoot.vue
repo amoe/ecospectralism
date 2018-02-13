@@ -15,45 +15,66 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+    import Vue from 'vue';
 import Vuex from 'vuex';
 import utility from '../utility';
- export default Vue.extend({
-     components: {
-     },
-     data: function() {
-         return {
-         };
-     },
-     methods: {
-         greet() {
-             console.log("hello");
-             console.log("state val is %o", this.$store.state.count);
-         },
-         doIncrement() {
-             this.$store.dispatch('increment');
-         },
-         myMethod(event) {
-             console.log("inside my method");
-             console.log("arguments are %o", event);
+import Meyda from 'meyda';
 
-             const files = event.target.files;
-             console.log("files object is %o", files);
+export default Vue.extend({
+    components: {
+    },
+    data: function() {
+        return {
+        };
+    },
+    methods: {
+        greet() {
+            console.log("hello");
+            console.log("state val is %o", this.$store.state.count);
+        },
+        doIncrement() {
+            this.$store.dispatch('increment');
+        },
+        myMethod(event) {
+            console.log("inside my method");
+            console.log("arguments are %o", event);
+            
+            const files = event.target.files;
+            console.log("files object is %o", files);
+            
+            for (var i = 0; i < files.length; i++) {
+                const thisFile = files[i];
+                
+                console.log("this file is %o", thisFile);
+                
+                const reader = new FileReader();
+                
+                // Close over the reader to access the result
+                reader.onload = e => this.onFileLoaded(reader);
+                reader.readAsArrayBuffer(thisFile);
+            }
+        },
+        onFileLoaded(reader) {
+            const buffer = reader.result;
+            const feature = 'rms';
+            const context = new AudioContext();
 
-             for (var i = 0; i < files.length; i++) {
-                 const thisFile = files[i];
+            context.decodeAudioData(reader.result)
+                .then(data => {
+                    console.log("decoded audio data now");
+                })
 
-                 console.log("this file is %o", thisFile);
+            // const meydaOptions = {
+            //     "audioContext":context, // required
+            //     "source":source, // required
+            //     "bufferSize": 512, // required
+            //     "hopSize": 256, // optional
+            //     "windowingFunction": "hamming", // optional
+            //     "featureExtractors": ["rms"], // optional - A string, or an array of strings containing the names of features you wish to extract.
+            //     "callback": Function // optional callback in which to receive the features for each buffer
+            // }
 
-                 const reader = new FileReader();
-
-                 // Close over the reader to access the result
-                 reader.onload = function (e) {
-                     console.log("read completed");
-                     console.log("event.target.result = %o", reader.result);
-                 };
-                 reader.readAsArrayBuffer(thisFile);
-             }
+            //  const meydaAnalyzer = Meyda.createMeydaAnalyzer(meydaOptions);
          }
      },
      // mapState doesn't work with typescript: "Property 'mapState' does not exist on type"
