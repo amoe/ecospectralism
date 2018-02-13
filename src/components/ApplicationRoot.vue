@@ -6,6 +6,11 @@
     <p>The value is: <code>{{count}}</code></p>
     <button v-on:click="greet">Greet</button>
     <button v-on:click="doIncrement">Inc</button>
+
+    <div>
+      <input type="file" accept="audio/*" multiple v-on:change="myMethod"/>
+    </div>
+
   </div>
 </template>
 
@@ -28,6 +33,19 @@ import utility from '../utility';
          doIncrement() {
              this.$store.dispatch('increment');
          },
+         myMethod(event) {
+             console.log("inside my method");
+             console.log("arguments are %o", event);
+
+             const files = event.target.files;
+             console.log("files object is %o", files);
+
+             for (var i = 0; i < files.length; i++) {
+                 const thisFile = files[i];
+
+                 console.log("this file is %o", thisFile);
+             }
+         }
      },
      // mapState doesn't work with typescript: "Property 'mapState' does not exist on type"
      // So we manually create the relevant computed properties.
