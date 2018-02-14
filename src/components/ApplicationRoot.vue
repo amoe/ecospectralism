@@ -22,9 +22,9 @@
     import Vue from 'vue';
 import Vuex from 'vuex';
 import utility from '../utility';
-//import * as Meyda from 'meyda';
 import * as Meyda from 'meyda';
 import * as d3 from 'd3-scale';
+import analysis from '../async-analyzer';
 
 export default Vue.extend({
     components: {
@@ -82,35 +82,17 @@ export default Vue.extend({
                     console.log("have now decoded data");
                     const source = context.createBufferSource();
                     source.buffer = data;
-                    const rmsFeatures = this.extractRms(source);
-                    console.log("found RMS features: %o", rmsFeatures.length);
 
+                    // Needed
+                    source.start();
 
-                    // x scale takes max index
-                    const xScale = d3.scaleLinear().domain([0, rmsFeatures.length]).range([0, 320]);
-                    const yScale = d3.scaleLinear().domain([0, 1]).range([0, 200]);
-
-                    for (var i = 0; i < rmsFeatures.length; i++) {
-                        const d = rmsFeatures[i];
-                        const xPosition = xScale(i);
-                        const yHeight = yScale(d);
-                        
-                        this.context.fillRect(xPosition, 0, 1, yHeight);
-                    }
+                    analysis.analyze(source, context, f => {
+                        if (f.rms !== 0) {
+                            this.$store.dispatch('increment');
+                        }
+                    });
                 });
         },
-        extractRms: function (source) {
-            const sampleRate = 1024;
-            const channelData = source.buffer.getChannelData(0);
-            const results = [];
-            
-            for (let i = 0; i < channelData.length - sampleRate; i += sampleRate) {
-                const r = Meyda.extract('rms', channelData.slice(i, i + sampleRate));
-                results.push(r);
-            }
-            
-            return results;
-        }
      },
      // mapState doesn't work with typescript: "Property 'mapState' does not exist on type"
      // So we manually create the relevant computed properties.
