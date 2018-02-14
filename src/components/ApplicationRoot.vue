@@ -83,14 +83,22 @@ export default Vue.extend({
                     const source = context.createBufferSource();
                     source.buffer = data;
 
-                    // Needed
-                    source.start();
 
+                    source.onended = e => {
+                        console.log("playback has now ended at %o", new Date());
+                    };
+                    
                     analysis.analyze(source, context, f => {
                         if (f.rms !== 0) {
                             this.$store.dispatch('increment');
                         }
                     });
+
+                    console.log("starting at %o", new Date());
+
+                    // Needed
+                    source.start();
+
                 });
         },
      },
