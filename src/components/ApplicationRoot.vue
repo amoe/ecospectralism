@@ -4,6 +4,9 @@
 
     <p>Hi there!</p>
     <p>The value is: <code>{{count}}</code></p>
+
+    <p>Channels: <output>{{nChannels}}</output></p>
+
     <button v-on:click="greet">Greet</button>
     <button v-on:click="doIncrement">Inc</button>
 
@@ -33,6 +36,7 @@ export default Vue.extend({
         return {
             buf: null,
             context: null,
+            nChannels: null
         };
     },
     mounted: function (this: any) {
@@ -86,6 +90,7 @@ export default Vue.extend({
                 .then(data => {
                     console.log("have now decoded data");
                     const source = context.createBufferSource();
+                    this.nChannels = data.numberOfChannels;
                     source.buffer = data;
                     const rmsFeatures = analysis.extractRms(source);
                     console.log("found RMS features: %o", rmsFeatures.length);
