@@ -24,7 +24,7 @@ import Vuex from 'vuex';
 import utility from '../utility';
 import * as Meyda from 'meyda';
 import * as d3 from 'd3-scale';
-import analysis from '../async-analyzer';
+import analysis from '../chunked-analyzer';
 
 export default Vue.extend({
     components: {
@@ -41,7 +41,7 @@ export default Vue.extend({
         });
     },
     methods: {
-
+        
         greet() {
             console.log("hello");
             console.log("state val is %o", this.$store.state.count);
@@ -77,30 +77,35 @@ export default Vue.extend({
             
             const self = this;
             
+            
+            // ARCHAEOLOGISTS-NOTE:
+            // There used to be a version
+            // using the async API at cba55812c4e69d8ad98e59a06fbd4c2f92c45cfc
+            // But it's pegged to the 'real' clock so can't be used.
             context.decodeAudioData(reader.result)
                 .then(data => {
                     console.log("have now decoded data");
                     const source = context.createBufferSource();
                     source.buffer = data;
-
-
-                    source.onended = e => {
-                        console.log("playback has now ended at %o", new Date());
-                    };
+                    const rmsFeatures = analysis.extractRms(source);
+                    console.log("found RMS features: %o", rmsFeatures.length);
                     
-                    analysis.analyze(source, context, f => {
-                        if (f.rms !== 0) {
-                            this.$store.dispatch('increment');
-                        }
-                    });
-
-                    console.log("starting at %o", new Date());
-
-                    // Needed
-                    source.start();
-
+                    this.draw(rmsFeatures);
                 });
         },
+        draw(rmsFeatures) {
+            // x scale takes max index
+            const xScale = d3.scaleLinear().domain([0, rmsFeatures.length]).range([0, 320]);
+            const yScale = d3.scaleLinear().domain([0, 1]).range([0, 200]);
+            
+            for (var i = 0; i < rmsFeatures.length; i++) {
+                const d = rmsFeatures[i];
+                const xPosition = xScale(i);
+                const yHeight = yScale(d);
+                
+                this.context.fillRect(xPosition, 0, 1, yHeight);
+            }
+        }
      },
      // mapState doesn't work with typescript: "Property 'mapState' does not exist on type"
      // So we manually create the relevant computed properties.
