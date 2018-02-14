@@ -92,6 +92,12 @@ export default Vue.extend({
                     const source = context.createBufferSource();
                     this.nChannels = data.numberOfChannels;
                     source.buffer = data;
+
+
+                    // I think this is not a full implementation of what the
+                    // async analyzer will do.  We'd really need to compare
+                    // the extracted features to find out.  But it looks like
+                    // this is missing some logic; see audio-callback.js.
                     const rmsFeatures = analysis.extractRms(source);
                     console.log("found RMS features: %o", rmsFeatures.length);
                     
