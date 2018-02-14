@@ -11,6 +11,10 @@
       <input type="file" accept="audio/*" multiple v-on:change="myMethod"/>
     </div>
 
+    <div>
+      <canvas ref="canvas" id="grid2" width="320" height="320">
+      </canvas>
+    </div>
   </div>
 </template>
 
@@ -18,16 +22,26 @@
     import Vue from 'vue';
 import Vuex from 'vuex';
 import utility from '../utility';
-import Meyda from 'meyda';
+//import * as Meyda from 'meyda';
+import * as Meyda from 'meyda';
+import * as d3 from 'd3-scale';
 
 export default Vue.extend({
     components: {
     },
     data: function() {
         return {
+            buf: null,
+            context: null,
         };
     },
+    mounted: function (this: any) {
+        this.$nextTick(() => {
+            this.context = this.$refs.canvas.getContext('2d');
+        });
+    },
     methods: {
+
         greet() {
             console.log("hello");
             console.log("state val is %o", this.$store.state.count);
@@ -36,6 +50,8 @@ export default Vue.extend({
             this.$store.dispatch('increment');
         },
         myMethod(event) {
+            console.log("canvas is %o", this.$refs.canvas);
+            
             console.log("inside my method");
             console.log("arguments are %o", event);
             
@@ -54,28 +70,47 @@ export default Vue.extend({
                 reader.readAsArrayBuffer(thisFile);
             }
         },
-        onFileLoaded(reader) {
+        onFileLoaded(this: any, reader) {
             const buffer = reader.result;
             const feature = 'rms';
             const context = new AudioContext();
-
+            
+            const self = this;
+            
             context.decodeAudioData(reader.result)
                 .then(data => {
-                    console.log("decoded audio data now");
-                })
+                    console.log("have now decoded data");
+                    const source = context.createBufferSource();
+                    source.buffer = data;
+                    const rmsFeatures = this.extractRms(source);
+                    console.log("found RMS features: %o", rmsFeatures.length);
 
-            // const meydaOptions = {
-            //     "audioContext":context, // required
-            //     "source":source, // required
-            //     "bufferSize": 512, // required
-            //     "hopSize": 256, // optional
-            //     "windowingFunction": "hamming", // optional
-            //     "featureExtractors": ["rms"], // optional - A string, or an array of strings containing the names of features you wish to extract.
-            //     "callback": Function // optional callback in which to receive the features for each buffer
-            // }
 
-            //  const meydaAnalyzer = Meyda.createMeydaAnalyzer(meydaOptions);
-         }
+                    // x scale takes max index
+                    const xScale = d3.scaleLinear().domain([0, rmsFeatures.length]).range([0, 320]);
+                    const yScale = d3.scaleLinear().domain([0, 1]).range([0, 200]);
+
+                    for (var i = 0; i < rmsFeatures.length; i++) {
+                        const d = rmsFeatures[i];
+                        const xPosition = xScale(i);
+                        const yHeight = yScale(d);
+                        
+                        this.context.fillRect(xPosition, 0, 1, yHeight);
+                    }
+                });
+        },
+        extractRms: function (source) {
+            const sampleRate = 1024;
+            const channelData = source.buffer.getChannelData(0);
+            const results = [];
+            
+            for (let i = 0; i < channelData.length - sampleRate; i += sampleRate) {
+                const r = Meyda.extract('rms', channelData.slice(i, i + sampleRate));
+                results.push(r);
+            }
+            
+            return results;
+        }
      },
      // mapState doesn't work with typescript: "Property 'mapState' does not exist on type"
      // So we manually create the relevant computed properties.

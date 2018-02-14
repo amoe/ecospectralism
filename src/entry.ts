@@ -1,5 +1,6 @@
 // entry.ts
 
+
 import * as log from 'loglevel';
 import mymodule from './mymodule';
 import ApplicationRoot from './components/ApplicationRoot.vue';

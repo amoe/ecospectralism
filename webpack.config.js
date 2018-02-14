@@ -10,6 +10,9 @@ module.exports = {
     resolve: {
         extensions: ['.ts', '.js']
     },
+    externals: {
+        Meyda: 'meyda'
+    },
     module: {
         rules: [
             {
