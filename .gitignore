@@ -2,3 +2,5 @@ intermediate_data/
 .ipynb_checkpoints/
 node_modules/
 __pycache__/
+dist
+bundle.js
