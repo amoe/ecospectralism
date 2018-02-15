@@ -20,8 +20,9 @@
   <!-- </div> -->
   
   <div class="visualization-grid">
-    <div class="single-viz">
+    <div class="single-viz" v-viz>
     </div>
+
     <div class="single-viz">
     </div>
     
@@ -55,6 +56,13 @@ import * as d3 from 'd3-scale';
 import analysis from '../chunked-analyzer';
 
 export default Vue.extend({
+    directives: {
+        viz: {
+            inserted(el) {
+                console.log("viz inserted hook called with %o", el);
+            }
+        }
+    },
     components: {
     },
     data: function() {
@@ -66,7 +74,7 @@ export default Vue.extend({
     },
     mounted: function (this: any) {
         this.$nextTick(() => {
-            this.context = this.$refs.canvas.getContext('2d');
+//            this.context = this.$refs.canvas.getContext('2d');
         });
     },
     methods: {
