@@ -9,6 +9,7 @@
   
   <button v-on:click="greet">Greet</button>
   <button v-on:click="doIncrement">Inc</button>
+  <button v-on:click="addViz">Add viz</button>
   
   <div>
     <input type="file" accept="audio/*" multiple v-on:change="myMethod"/>
@@ -20,28 +21,7 @@
   <!-- </div> -->
   
   <div class="visualization-grid">
-    <div class="single-viz" v-viz>
-    </div>
-
-    <div class="single-viz">
-    </div>
-    
-    <div class="single-viz">
-    </div>
-    
-    <div class="single-viz">
-    </div>
-    
-    <div class="single-viz">
-    </div>
-    
-    <div class="single-viz">
-    </div>
-    
-    <div class="single-viz">
-    </div>
-    
-    <div class="single-viz">
+    <div v-for="datum in visualizationData" class="single-viz" v-viz="count">
     </div>
   </div>
 </div>
@@ -57,10 +37,8 @@ import analysis from '../chunked-analyzer';
 
 export default Vue.extend({
     directives: {
-        viz: {
-            inserted(el) {
-                console.log("viz inserted hook called with %o", el);
-            }
+        viz: function (el, binding) {
+            console.log("inside directive hook, received value %o", binding.value);
         }
     },
     components: {
@@ -69,7 +47,8 @@ export default Vue.extend({
         return {
             buf: null,
             context: null,
-            nChannels: null
+            nChannels: null,
+            visualizationData: []
         };
     },
     mounted: function (this: any) {
@@ -78,7 +57,9 @@ export default Vue.extend({
         });
     },
     methods: {
-        
+        addViz() {
+            this.visualizationData.push(1);
+        },
         greet() {
             console.log("hello");
             console.log("state val is %o", this.$store.state.count);
