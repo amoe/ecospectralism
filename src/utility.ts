@@ -18,7 +18,33 @@ const functions = {
             console.log('Error', error.message);
         }
         console.log(error.config);
+    },
+
+    single(sequence) {
+        if (sequence === null) {
+            throw new Error("unexpected null sequence");
+        }
+
+        if (typeof sequence === undefined) {
+            throw new Error("unexpected undefined sequence");
+        }
+
+
+        if (sequence.length === 0) {
+            throw new Error("item not found");
+        }
+
+        if (sequence.length > 1) {
+            throw new Error("multiple items found, can't happen");
+        }
+
+        if (sequence.length !== 1) {
+            throw new Error("really bizarre case");
+        }
+        
+        return sequence[0];
     }
+
 };
 
 export default functions;

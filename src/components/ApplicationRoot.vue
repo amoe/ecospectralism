@@ -21,7 +21,7 @@
   <!-- </div> -->
   
   <div class="visualization-grid">
-    <div v-for="datum in visualizationData" class="single-viz" v-viz="count">
+    <div v-for="datum in visualizationData" v-viz="datum" class="single-viz">
     </div>
   </div>
 </div>
@@ -37,8 +37,40 @@ import analysis from '../chunked-analyzer';
 
 export default Vue.extend({
     directives: {
-        viz: function (el, binding) {
-            console.log("inside directive hook, received value %o", binding.value);
+        viz: {
+            bind(el, binding) {
+            },
+            // inserted is the only callback where we have access to the
+            // rendered scrollWidth
+            inserted(el, binding) {
+                console.log("concrete width is %o, concrete height is %o", el.offsetWidth, el.offsetHeight);
+                
+                const canvas = document.createElement('canvas');
+                canvas.setAttribute('width', el.offsetWidth.toString());
+                canvas.setAttribute('height', el.offsetHeight.toString());
+                el.appendChild(canvas);
+
+                const context = canvas.getContext('2d');
+                console.log("found draw context %o", context);
+                const rmsFeatures = binding.value;
+                
+                const xScale = d3.scaleLinear().domain([0, rmsFeatures.length]).range([0, 320]);
+                const yScale = d3.scaleLinear().domain([0, 1]).range([0, 200]);
+                
+                for (var i = 0; i < rmsFeatures.length; i++) {
+                    const d = rmsFeatures[i];
+                    const xPosition = xScale(i);
+                    const yHeight = yScale(d);
+                
+                    context.fillRect(xPosition, 0, 1, yHeight);
+                }
+            },
+            update(el, binding) {
+            },
+            componentUpdated(el, binding) {
+            },
+            unbind(el, binding) {
+            }
         }
     },
     components: {
@@ -57,12 +89,12 @@ export default Vue.extend({
         });
     },
     methods: {
-        addViz() {
-            this.visualizationData.push(1);
+        addViz(features) {
+            this.visualizationData.push(features);
         },
         greet() {
             console.log("hello");
-            console.log("state val is %o", this.$store.state.count);
+            console.log("state val is %o", (document.querySelector('.single-viz') as HTMLElement).offsetWidth);
         },
         doIncrement() {
             this.$store.dispatch('increment');
@@ -107,29 +139,18 @@ export default Vue.extend({
                     this.nChannels = data.numberOfChannels;
                     source.buffer = data;
 
-
                     // I think this is not a full implementation of what the
                     // async analyzer will do.  We'd really need to compare
                     // the extracted features to find out.  But it looks like
                     // this is missing some logic; see audio-callback.js.
                     const rmsFeatures = analysis.extractRms(source);
                     console.log("found RMS features: %o", rmsFeatures.length);
+
+                    this.visualizationData.push(rmsFeatures);
                     
-                    this.draw(rmsFeatures);
                 });
         },
         draw(rmsFeatures) {
-            // x scale takes max index
-            const xScale = d3.scaleLinear().domain([0, rmsFeatures.length]).range([0, 320]);
-            const yScale = d3.scaleLinear().domain([0, 1]).range([0, 200]);
-            
-            for (var i = 0; i < rmsFeatures.length; i++) {
-                const d = rmsFeatures[i];
-                const xPosition = xScale(i);
-                const yHeight = yScale(d);
-                
-                this.context.fillRect(xPosition, 0, 1, yHeight);
-            }
         }
      },
      // mapState doesn't work with typescript: "Property 'mapState' does not exist on type"
@@ -158,6 +179,7 @@ div.single-viz {
     background-color: #a0a0a0;
     width: 16rem;
     height: 16ex;
+    position: relative;
 }
 
 div.visualization-grid {
