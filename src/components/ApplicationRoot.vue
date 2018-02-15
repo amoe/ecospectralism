@@ -1,7 +1,7 @@
 <template>
 <div class="page">
   <h1>New Project from amoe-vue-template</h1>
-  
+
   <p>Hi there!</p>
   <p>The value is: <code>{{count}}</code></p>
   
@@ -24,16 +24,19 @@
     <div v-for="datum in visualizationData" v-viz="datum" class="single-viz">
     </div>
   </div>
+  
+  <spinner/>
 </div>
 </template>
 
 <script lang="ts">
-    import Vue from 'vue';
+import Vue from 'vue';
 import Vuex from 'vuex';
 import utility from '../utility';
 import * as Meyda from 'meyda';
 import * as d3 from 'd3-scale';
 import analysis from '../chunked-analyzer';
+import Spinner from './Spinner.vue';
 
 export default Vue.extend({
     directives: {
@@ -74,6 +77,7 @@ export default Vue.extend({
         }
     },
     components: {
+        Spinner
     },
     data: function() {
         return {
@@ -117,6 +121,8 @@ export default Vue.extend({
                 
                 // Close over the reader to access the result
                 reader.onload = e => this.onFileLoaded(reader);
+
+                this.$store.commit('operationStarted');
                 reader.readAsArrayBuffer(thisFile);
             }
         },
@@ -147,7 +153,7 @@ export default Vue.extend({
                     console.log("found RMS features: %o", rmsFeatures.length);
 
                     this.visualizationData.push(rmsFeatures);
-                    
+                    this.$store.commit('operationFinished');
                 });
         },
         draw(rmsFeatures) {

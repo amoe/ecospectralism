@@ -7,19 +7,28 @@ import ApplicationRoot from './components/ApplicationRoot.vue';
 import Vue from 'vue';
 import Vuex from 'vuex';
 import actions from './actions'
+import getters from './getters'
 
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
     state: {
         count: 0,
+        inProgressCount: 0
     },
     mutations: {
         increment(state) {
             state.count++;
+        },
+        operationStarted(state) {
+            state.inProgressCount++;
+        },
+        operationFinished(state) {
+            state.inProgressCount--;
         }
     },
-    actions
+    actions,
+    getters
 });
 
 log.setLevel('debug');
