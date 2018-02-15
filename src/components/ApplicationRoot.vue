@@ -1,24 +1,49 @@
 <template>
+<div class="page">
+  <h1>New Project from amoe-vue-template</h1>
+  
+  <p>Hi there!</p>
+  <p>The value is: <code>{{count}}</code></p>
+  
+  <p>Channels: <output>{{nChannels}}</output></p>
+  
+  <button v-on:click="greet">Greet</button>
+  <button v-on:click="doIncrement">Inc</button>
+  
   <div>
-    <h1>New Project from amoe-vue-template</h1>
-
-    <p>Hi there!</p>
-    <p>The value is: <code>{{count}}</code></p>
-
-    <p>Channels: <output>{{nChannels}}</output></p>
-
-    <button v-on:click="greet">Greet</button>
-    <button v-on:click="doIncrement">Inc</button>
-
-    <div>
-      <input type="file" accept="audio/*" multiple v-on:change="myMethod"/>
+    <input type="file" accept="audio/*" multiple v-on:change="myMethod"/>
+  </div>
+  
+  <!-- <div> -->
+  <!--   <canvas ref="canvas" id="grid2" width="320" height="320"> -->
+  <!--   </canvas> -->
+  <!-- </div> -->
+  
+  <div class="visualization-grid">
+    <div class="single-viz">
     </div>
-
-    <div>
-      <canvas ref="canvas" id="grid2" width="320" height="320">
-      </canvas>
+    <div class="single-viz">
+    </div>
+    
+    <div class="single-viz">
+    </div>
+    
+    <div class="single-viz">
+    </div>
+    
+    <div class="single-viz">
+    </div>
+    
+    <div class="single-viz">
+    </div>
+    
+    <div class="single-viz">
+    </div>
+    
+    <div class="single-viz">
     </div>
   </div>
+</div>
 </template>
 
 <script lang="ts">
@@ -129,14 +154,28 @@ export default Vue.extend({
 </script>
 
 <style>
-body {
+h1,h2 { font-family: Georgia; }
+
+p, label { font-family: Arial, sans-serif; }
+
+div.page {
     max-width: 64rem;
     margin-left: auto;
     margin-right: auto;
     background-color: #fdfdfd;
 }
 
-h1,h2 { font-family: Georgia; }
+div.single-viz {
+    background-color: #a0a0a0;
+    width: 16rem;
+    height: 16ex;
+}
 
-p, label { font-family: Arial, sans-serif; }
+div.visualization-grid {
+    display: grid;
+    grid-column-gap: 1rem;
+    grid-row-gap: 1rem;
+    grid-template-columns: repeat(4, 1fr);
+}
+
 </style>
