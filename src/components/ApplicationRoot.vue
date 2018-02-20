@@ -24,6 +24,8 @@
     <div v-for="datum in visualizationData" v-viz="datum" class="single-viz">
     </div>
   </div>
+
+  <my-component></my-component>
   
   <spinner/>
 </div>
@@ -37,6 +39,7 @@ import * as Meyda from 'meyda';
 import * as d3 from 'd3-scale';
 import analysis from '../chunked-analyzer';
 import Spinner from './Spinner.vue';
+import MyComponent from './MyComponent.vue';
 
 export default Vue.extend({
     directives: {
@@ -77,7 +80,7 @@ export default Vue.extend({
         }
     },
     components: {
-        Spinner
+        Spinner, MyComponent
     },
     data: function() {
         return {
